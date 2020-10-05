@@ -14,14 +14,19 @@ PATH_MAPPING="mapping"
 PATH_EDITOR="editor"
 PATH_HARVESTER="harvester"
 
-export HARVESTER_SOURCES="$(cat ./sources.json)"
+TREEISH_CREATOR=${TREEISH_CREATOR:-"master"}
+TREEISH_MAPPING=${TREEISH_MAPPING:-"master"}
+TREEISH_EDITOR=${TREEISH_EDITOR:-"master"}
+TREEISH_HARVESTER=${TREEISH_HARVESTER:-"master"}
+
+export HARVESTER_SOURCES="$(cat ./harvester-sources.json)"
 
 rm -fr ${PATH_TOOLS}
 mkdir -p ${PATH_TOOLS}
 
-git clone ${URL_GIT_CREATOR} ${PATH_TOOLS}/${PATH_CREATOR}
-git clone ${URL_GIT_MAPPING} ${PATH_TOOLS}/${PATH_MAPPING}
-git clone ${URL_GIT_EDITOR} ${PATH_TOOLS}/${PATH_EDITOR}
-git clone ${URL_GIT_HARVESTER} ${PATH_TOOLS}/${PATH_HARVESTER}
+git clone --depth 1 --branch ${TREEISH_CREATOR} ${URL_GIT_CREATOR} ${PATH_TOOLS}/${PATH_CREATOR}
+git clone --depth 1 --branch ${TREEISH_MAPPING} ${URL_GIT_MAPPING} ${PATH_TOOLS}/${PATH_MAPPING}
+git clone --depth 1 --branch ${TREEISH_EDITOR} ${URL_GIT_EDITOR} ${PATH_TOOLS}/${PATH_EDITOR}
+git clone --depth 1 --branch ${TREEISH_HARVESTER} ${URL_GIT_HARVESTER} ${PATH_TOOLS}/${PATH_HARVESTER}
 
 docker-compose up -d --build
