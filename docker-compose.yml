@@ -36,14 +36,14 @@ services:
       HARVESTER_LOG_LEVEL: info
       HARVESTER_SPARQL_ENDPOINT: http://virtuoso:8890/sparql
       HARVESTER_SPARQL_UPDATE_ENDPOINT: http://virtuoso:8890/sparql-auth
-      HARVESTER_GRAPH_URI: http://fundacionctic.org/breg-harvester
+      HARVESTER_GRAPH_URI: http://breg-dcat-editor.pilot
       HARVESTER_SPARQL_USER: dba
       HARVESTER_SPARQL_PASS: dba
       HARVESTER_SOURCES: ${HARVESTER_SOURCES}
   harvester-worker:
-    build: ./tools/harvester
     image: breg-dcat-harvester
     depends_on:
+      - harvester-api
       - redis
       - virtuoso
     environment:
@@ -62,7 +62,7 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: root
     ports:
-      - 3306
+      - 10060:3306
     volumes:
       - "./tools/mapping/dcat-mapping-database.sql:/docker-entrypoint-initdb.d/mapping.sql"
       - "./tools/editor/dcat-editor-database.sql:/docker-entrypoint-initdb.d/editor.sql"
@@ -70,10 +70,10 @@ services:
     image: tenforce/virtuoso:virtuoso7.2.4
     environment:
       SPARQL_UPDATE: "true"
-      DEFAULT_GRAPH: "http://data.ctic.es"
+      DEFAULT_GRAPH: "http://breg-dcat-editor.pilot"
     ports:
-      - 8890
+      - 10070:8890
   redis:
     image: redis:5
     ports:
-      - "6379"
+      - 10080:6379
