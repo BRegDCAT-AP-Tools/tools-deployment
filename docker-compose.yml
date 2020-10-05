@@ -1,0 +1,7 @@
+version: "3"
+services:
+  creator:
+    build: ./tools/creator
+    image: breg-dcat-creator
+    ports:
+      - 10020:80
