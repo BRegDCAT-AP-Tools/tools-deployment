@@ -1,4 +1,4 @@
-version: "3"
+version: "3.7"
 services:
   creator:
     build: ./tools/creator
@@ -10,14 +10,52 @@ services:
     image: breg-dcat-mapping
     ports:
       - 10030:80
+    depends_on:
+      - mysql
+      - virtuoso
   editor:
     build: ./tools/editor
     image: breg-dcat-editor
     ports:
-      - 10040:80    
+      - 10040:80
+    depends_on:
+      - mysql
+      - virtuoso
     environment:
-      VIRTUOSO_SPARQL_ENDPOINT: 'http://virtuoso:8890/sparql'
-      GRAPHURI: 'http://drupal.bregdcat-ap.eu'    
+      VIRTUOSO_SPARQL_ENDPOINT: "http://virtuoso:8890/sparql"
+      GRAPHURI: "http://drupal.bregdcat-ap.eu"
+  harvester-api:
+    build: ./tools/harvester
+    image: breg-dcat-harvester
+    ports:
+      - 10050:5000
+    depends_on:
+      - redis
+      - virtuoso
+    environment:
+      HARVESTER_LOG_LEVEL: info
+      HARVESTER_SPARQL_ENDPOINT: http://virtuoso:8890/sparql
+      HARVESTER_SPARQL_UPDATE_ENDPOINT: http://virtuoso:8890/sparql-auth
+      HARVESTER_GRAPH_URI: http://fundacionctic.org/breg-harvester
+      HARVESTER_SPARQL_USER: dba
+      HARVESTER_SPARQL_PASS: dba
+      HARVESTER_SOURCES: ${HARVESTER_SOURCES}
+  harvester-worker:
+    build: ./tools/harvester
+    image: breg-dcat-harvester
+    depends_on:
+      - redis
+      - virtuoso
+    environment:
+      HARVESTER_LOG_LEVEL: info
+    command:
+      [
+        "/usr/local/bin/rq",
+        "worker",
+        "--with-scheduler",
+        "--url",
+        "redis://redis",
+      ]
   mysql:
     image: mysql:5.7
     command: --default-authentication-plugin=mysql_native_password
@@ -35,3 +73,7 @@ services:
       DEFAULT_GRAPH: "http://data.ctic.es"
     ports:
       - 8890
+  redis:
+    image: redis:5
+    ports:
+      - "6379"
