@@ -10,6 +10,14 @@ services:
     image: breg-dcat-mapping
     ports:
       - 10030:80
+  editor:
+    build: ./tools/editor
+    image: breg-dcat-editor
+    ports:
+      - 10040:80    
+    environment:
+      VIRTUOSO_SPARQL_ENDPOINT: 'http://virtuoso:8890/sparql'
+      GRAPHURI: 'http://drupal.bregdcat-ap.eu'    
   mysql:
     image: mysql:5.7
     command: --default-authentication-plugin=mysql_native_password
@@ -18,7 +26,8 @@ services:
     ports:
       - 3306
     volumes:
-      - "./tools/mapping/dcat-mapping-database.sql:/docker-entrypoint-initdb.d/z_dcat-database-init.sql"
+      - "./tools/mapping/dcat-mapping-database.sql:/docker-entrypoint-initdb.d/mapping.sql"
+      - "./tools/editor/dcat-editor-database.sql:/docker-entrypoint-initdb.d/editor.sql"
   virtuoso:
     image: tenforce/virtuoso:virtuoso7.2.4
     environment:
